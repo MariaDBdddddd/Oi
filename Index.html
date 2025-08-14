@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Clone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #36393f;
+            color: #dcddde;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: #2f3136;
+            border-right: 1px solid #202225;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .server-info {
+            padding: 12px 16px;
+            border-bottom: 1px solid #202225;
+            font-weight: 600;
+            background: #2f3136;
+        }
+
+        .channels {
+            flex: 1;
+            padding: 8px;
+        }
+
+        .channel-category {
+            color: #8e9297;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 16px 8px 4px 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .channel {
+            padding: 6px 8px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background 0.15s;
+        }
+
+        .channel:hover {
+            background: #34373c;
+        }
+
+        .channel.active {
+            background: #393c43;
+            color: #fff;
+        }
+
+        .channel::before {
+            content: '#';
+            margin-right: 6px;
+            color: #8e9297;
+        }
+
+        .user-info {
+            padding: 10px;
+            background: #292b2f;
+            border-top: 1px solid #202225;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #7289da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-details {
+            flex: 1;
+            margin-left: 8px;
+        }
+
+        .username {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-status {
+            font-size: 12px;
+            color: #b9bbbe;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            height: 48px;
+            border-bottom: 1px solid #202225;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background: #36393f;
+        }
+
+        .channel-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .channel-name::before {
+            content: '#';
+            margin-right: 8px;
+            color: #8e9297;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            padding: 2px 0;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #7289da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 2px;
+        }
+
+        .message-author {
+            font-weight: 600;
+            margin-right: 8px;
+            color: #fff;
+        }
+
+        .message-timestamp {
+            font-size: 12px;
+            color: #72767d;
+        }
+
+        .message-text {
+            line-height: 1.375;
+            word-wrap: break-word;
+        }
+
+        .message-input-container {
+            padding: 16px;
+            background: #40444b;
+        }
+
+        .message-input {
+            width: 100%;
+            background: #40444b;
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            color: #dcddde;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 44px;
+            max-height: 144px;
+        }
+
+        .message-input:focus {
+            background: #383a40;
+        }
+
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-form {
+            background: #36393f;
+            padding: 32px;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .login-input {
+            width: 100%;
+            background: #202225;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            color: #dcddde;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .login-button {
+            width: 100%;
+            background: #7289da;
+            border: none;
+            border-radius: 4px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: background 0.2s;
+        }
+
+        .login-button:hover {
+            background: #677bc4;
+        }
+
+        .login-button:disabled {
+            background: #4f5660;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #f04747;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #b9bbbe;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #36393f;
+        }
+
+        ::-webkit-scrollbar {
+            width: 14px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2e3136;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #202225;
+            border-radius: 8px;
+            border: 3px solid #2e3136;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1a1d20;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-form">
+            <h2 class="login-title">Bem-vindo de volta!</h2>
+            <form id="loginForm">
+                <input type="email" id="emailInput" class="login-input" placeholder="Email" required>
+                <input type="password" id="passwordInput" class="login-input" placeholder="Senha" required>
+                <button type="submit" id="loginBtn" class="login-button">Entrar</button>
+                <button type="button" id="registerBtn" class="login-button">Criar Conta</button>
+                <div id="authError" class="error-message hidden"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="appContainer" class="app-container hidden">
+        <div class="sidebar">
+            <div class="server-info">
+                <div>🚀 Meu Servidor</div>
+            </div>
+            
+            <div class="channels">
+                <div class="channel-category">Canais de Texto</div>
+                <div class="channel active" data-channel="geral">geral</div>
+                <div class="channel" data-channel="random">random</div>
+                <div class="channel" data-channel="tecnologia">tecnologia</div>
+                <div class="channel" data-channel="jogos">jogos</div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div class="user-details">
+                    <div class="username" id="username">Usuário</div>
+                    <div class="user-status">🟢 Online</div>
+                </div>
+                <button class="logout-btn" id="logoutBtn" title="Sair">⚙️</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="channel-name" id="currentChannel">geral</div>
+            </div>
+            
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will be loaded here -->
+            </div>
+            
+            <div class="message-input-container">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Mensagem #geral"
+                    rows="1"
+                ></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUj6PxH9yCiSICCTcAXVLZC2vEPlcaF94",
+            authDomain: "discord-d4daf.firebaseapp.com",
+            projectId: "discord-d4daf",
+            storageBucket: "discord-d4daf.firebasestorage.app",
+            messagingSenderId: "84758444441",
+            appId: "1:84758444441:web:012a01323ebe15d09d3b08",
+            measurementId: "G-5RE388WPK3"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loginContainer = document.getElementById('loginContainer');
+        const appContainer = document.getElementById('appContainer');
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const authError = document.getElementById('authError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const username = document.getElementById('username');
+        const userAvatar = document.getElementById('userAvatar');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+        const currentChannelEl = document.getElementById('currentChannel');
+        const channels = document.querySelectorAll('.channel');
+
+        // State
+        let currentUser = null;
+        let currentChannel = 'geral';
+        let unsubscribeMessages = null;
+
+        // Utility Functions
+        function showError(message) {
+            authError.textContent = message;
+            authError.classList.remove('hidden');
+            setTimeout(() => {
+                authError.classList.add('hidden');
+            }, 5000);
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate();
+            const now = new Date();
+            const diffInHours = (now - date) / (1000 * 60 * 60);
+            
+            if (diffInHours < 24) {
+                return date.toLocaleTimeString('pt-BR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            } else {
+                return date.toLocaleDateString('pt-BR');
+            }
+        }
+
+        // Authentication
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showError('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(getAuthErrorMessage(error.code));
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Entrar';
+            }
+        });
+
+        registerBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showError('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('A senha deve ter pelo menos 6 caracteres.');
+                return;
+            }
+
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Criando conta...';
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const displayName = email.split('@')[0];
+                await updateProfile(userCredential.user, { displayName });
+            } catch (error) {
+                console.error('Registration error:', error);
+                showError(getAuthErrorMessage(error.code));
+            } finally {
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Criar Conta';
+            }
+        });
+
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        function getAuthErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/user-not-found':
+                    return 'Usuário não encontrado.';
+                case 'auth/wrong-password':
+                    return 'Senha incorreta.';
+                case 'auth/email-already-in-use':
+                    return 'Este email já está em uso.';
+                case 'auth/weak-password':
+                    return 'A senha é muito fraca.';
+                case 'auth/invalid-email':
+                    return 'Email inválido.';
+                case 'auth/too-many-requests':
+                    return 'Muitas tentativas. Tente novamente mais tarde.';
+                default:
+                    return 'Erro de autenticação. Tente novamente.';
+            }
+        }
+
+        // Auth State Observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                
+                const displayName = user.displayName || user.email.split('@')[0];
+                username.textContent = displayName;
+                userAvatar.textContent = getInitials(displayName);
+                
+                loadMessages(currentChannel);
+            } else {
+                currentUser = null;
+                loginContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+                
+                if (unsubscribeMessages) {
+                    unsubscribeMessages();
+                    unsubscribeMessages = null;
+                }
+            }
+        });
+
+        // Channel Management
+        channels.forEach(channel => {
+            channel.addEventListener('click', () => {
+                const channelName = channel.dataset.channel;
+                switchChannel(channelName);
+            });
+        });
+
+        function switchChannel(channelName) {
+            if (channelName === currentChannel) return;
+            
+            // Update UI
+            channels.forEach(ch => ch.classList.remove('active'));
+            document.querySelector(`[data-channel="${channelName}"]`).classList.add('active');
+            currentChannelEl.textContent = channelName;
+            messageInput.placeholder = `Mensagem #${channelName}`;
+            
+            // Clear messages and load new channel
+            messagesContainer.innerHTML = '';
+            currentChannel = channelName;
+            
+            if (unsubscribeMessages) {
+                unsubscribeMessages();
+            }
+            
+            loadMessages(channelName);
+        }
+
+        // Messages
+        function loadMessages(channel) {
+            const messagesRef = collection(db, 'messages');
+            const q = query(
+                messagesRef, 
+                where('channel', '==', channel),
+                orderBy('timestamp', 'asc')
+            );
+            
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((doc) => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                
+                displayMessages(messages);
+            });
+        }
+
+        function displayMessages(messages) {
+            messagesContainer.innerHTML = '';
+            
+            messages.forEach((message) => {
+                const messageEl = createMessageElement(message);
+                messagesContainer.appendChild(messageEl);
+            });
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function createMessageElement(message) {
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = getInitials(message.author);
+            
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            
+            const header = document.createElement('div');
+            header.className = 'message-header';
+            
+            const author = document.createElement('span');
+            author.className = 'message-author';
+            author.textContent = message.author;
+            
+            const timestamp = document.createElement('span');
+            timestamp.className = 'message-timestamp';
+            timestamp.textContent = formatTimestamp(message.timestamp);
+            
+            const text = document.createElement('div');
+            text.className = 'message-text';
+            text.textContent = message.text;
+            
+            header.appendChild(author);
+            header.appendChild(timestamp);
+            content.appendChild(header);
+            content.appendChild(text);
+            messageEl.appendChild(avatar);
+            messageEl.appendChild(content);
+            
+            return messageEl;
+        }
+
+        // Message Input
+        messageInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                await sendMessage();
+            }
+        });
+
+        messageInput.addEventListener('input', () => {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 144) + 'px';
+        });
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentUser) return;
+            
+            try {
+                await addDoc(collection(db, 'messages'), {
+                    text: text,
+                    author: currentUser.displayName || currentUser.email.split('@')[0],
+                    authorId: currentUser.uid,
+                    channel: currentChannel,
+                    timestamp: serverTimestamp()
+                });
+                
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showError('Erro ao enviar mensagem. Tente novamente.');
+            }
+        }
+
+        // Initialize
+        console.log('Discord Clone initialized');
+    </script>
+</body>
+</html>
